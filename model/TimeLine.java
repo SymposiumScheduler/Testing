@@ -2,8 +2,8 @@
 
     * Identifier[] is just a list can be an array or a list object.
     * methods without return type are void
-    * if it's not private it's A***BCQ
-    * Most of other things are the same as java.
+    * if it's not private it's public
+    * Most other things are the same as java.
 
     There are generic things that need to be decided.
         replace TimeType, SizeType, CategoryTime, PanelistIdType with other appropriate type, maybe int ?
@@ -12,7 +12,7 @@
             SizeType is enum: {Size1, Size2, Size3...}
             CategoryType is int : represent an id for every category
             PanelistIdType is int : just the index in the panelistNamesList in model
-        But othe things can work
+        But other things can work
 */
 
 
@@ -23,24 +23,27 @@
 
 */
 class Range {
-    // Condition : start < end
+    // Condition : start <= end
     final TimeType start;
     final TimeType end;
 
 
     /** check if it's nice
-            Nice Range List : a list of disjoint ranges sorted by the range.
+            Nice Range List : a list of disjoint ranges sorted by the start time.
     */
     static boolean isNiceRangeList(Range[] ranges);
 }
 
 
 public class TimeLine {
+   //-- Constructor
+   // create venueLineHandlers and add them to the timeline.
+   TimeLine(venues);
     //-- Declerations of types
     /**
-        in search methods(isAllocated or findAll methods ), a condition is used.
-        the condition decide if a time range is part of the search result, two
-        kinds of condition:
+        in search methods(isAllocated or findAll methods), a condition is used.
+        the condition decide if a time range is part of the search result, we
+        have two kinds of conditions:
             INTERSECT : It's enough for a range to intersect the search range
                         to be added. Usualy used for conflicts.
                             |-------|           |-----------------|
@@ -50,7 +53,7 @@ public class TimeLine {
                             X|----X---| X    X     |-----------------|
                             X   |-X-----X---|X       |-------|
     */
-    static final enum SearchCondition = {INTERSECT, ENCLOSE}
+    static final enum SearchCondition {INTERSECT, ENCLOSE}
 
     //-- State
     VenueLineHandler[] VenueLines;
@@ -88,36 +91,36 @@ public class TimeLine {
     /**
         should use the same implementation of findAll with venueLins and ENCLOSE.
     */
-    Venue[] findAllAvilaibleVenues(Range[] ranges, TimeType duration, SizeType size);
+    Venue[] findAllAvilaibleVenues(Range[] searchRanges, TimeType duration, SizeType size);
 
     /**
         check if panelist is allocated in the time range
     */
-    boolean isAllocated(Range range, PanelistIdType panelists, SearchCondition condition);
+    boolean isAllocated(Range searchRange, PanelistIdType panelists, SearchCondition condition);
     /**
         check if panel is allocated in the time range
     */
-    boolean isAllocated(Range range, Panel panel, SearchCondition condition);
+    boolean isAllocated(Range searchRange, Panel panel, SearchCondition condition);
     /**
         check if venue is allocated in the time range
     */
-    boolean isAllocated(Range range, Venue venue, SearchCondition condition);
+    boolean isAllocated(Range searchRange, Venue venue, SearchCondition condition);
     /**
         check if category is allocated in the time range
     */
-    boolean isAllocated(Range range, CategoryType category, SearchCondition condition);
+    boolean isAllocated(Range searchRange, CategoryType category, SearchCondition condition);
 
     /**
         finds and counts repeats of panelists in the range
         return : tuple of panelistId and how many times it repeated
     */
-    (PanelistIdType,int repeats)[] findAllPanelists(Range range, SearchCondition condition);
+    (PanelistIdType,int repeats)[] findAllPanelists(Range searchRange, SearchCondition condition);
     /**
         NEXT 3 methods : finds panels/venues/categories in a range with a condition
     */
-    Panel[] findAllPanels(Range range, Condition condition);
-    Venues[] findAllVenues(Range range, Condition condition);
-    Category[] findAllCategory(Range range, Condition condition);
+    Panel[] findAllPanels(Range searchRange, Condition condition);
+    Venues[] findAllVenues(Range searchRange, Condition condition);
+    Category[] findAllCategory(Range searchRange, Condition condition);
     //Result[] findAllEverything(Range range, Condition condition); // Maybe an optimization ?
 }
 
@@ -145,7 +148,7 @@ class VenueLineHandler {
     //--
     final Venue venue;
 
-    private AvilaibilityLine avalaibleLine;// Class defined in bottom of the class
+    private AvilaibilityLine avalaibleLine; // Class defined in bottom of the class
     private LinkedLine linkedLine;  // ~~~~~~~~~~
 
     //--
