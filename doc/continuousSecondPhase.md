@@ -6,7 +6,7 @@ The basic Idea is that we get rid of the matrix, and instead replace it by conti
 
 the TimeLine is part of the model because it holds data and retrieve it. and does not decide functionality nor do any actually calculations.
 
-## Example of how will it work
+## Example of how it will work
 
 ### Before adding any panels
 
@@ -40,13 +40,13 @@ $panel67        |---------------|
 
 venue 4 has a penel allocated in it. Now, if venue 4 is asked, it will return two ranges.
 
-if findAllCategories method called with a search range intersects/enclosed with panel 17 range, it will return a list of panel17's categories. because it intersects
+if findAllCategories method is called with a search range intersects/enclosed with panel 17 range, it will return a list of panel17's categories. because it intersects the search range.
 
 #### Next step : choosing next panel to add
 
 * pop from dificulity queue
 * find avilaible venue ranges
-	* start with the same way as *iterative greedy*. and choose from the queue.
+	* start with the same way as *original iterative greedy*. and choose from the queue.
 	* find avilaibility of panel and do `timeline.finaAvilaibleVenues(range,duration,size)`
 	* choose one just like like *original iterative greedy*.
 * run findAll methods to check for and run againts constraint.
