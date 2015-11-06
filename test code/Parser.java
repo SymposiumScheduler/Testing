@@ -12,8 +12,8 @@ public class Parser {
         List<VenueTime> schedule = new ArrayList<VenueTime>();
         JSONParser parser = new JSONParser();
         try {
-            Object obj = parser.parse(new FileReader("C:/Users/jrener/Dropbox/Senior Projects/sample code/src/data.txt"));
-            //Object obj = parser.parse(new FileReader("C:/Users/Joey/Dropbox/Senior Projects/test code/src/data.txt"));
+            //Object obj = parser.parse(new FileReader("C:/Users/jrener/Dropbox/Senior Projects/sample code/src/data.txt"));
+            Object obj = parser.parse(new FileReader("C:/Users/Joey/Dropbox/Senior Projects/sample code/src/data.txt"));
             //make sure you change the path
             JSONObject jsonObject = (JSONObject) obj;
             JSONArray json_venues = (JSONArray) jsonObject.get("Venues");
@@ -76,7 +76,12 @@ public class Parser {
                         final_hour = end_time;
                     }
                 }
-                panelists.put(name, times);
+                if (noob){
+                    panelists.put("n_" + name, times);
+                }
+                else {
+                    panelists.put(name, times);
+                }
             }
             //System.out.println(final_hour);
 
@@ -103,7 +108,7 @@ public class Parser {
                     times = panelists.get(person);
                     people_involved.put(person, times);
                 }
-                panels.add(new Panel(name, people_involved, final_hour)); //note that panel creation does the necessary math to determine available times
+                panels.add(new Panel(name, people_involved, category, final_hour)); //note that panel creation does the necessary math to determine available times
                 //TODO set panel constraints
                 //TODO if a panel has a certain minimum size or any venue limits, set its locked value to true
             }

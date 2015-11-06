@@ -7,18 +7,28 @@ public class Panel implements Comparable<Panel>{
     String name;
     List<int[]> times;
     boolean locked = false;
+    boolean noob = false;
     int minimum_size = 0;
     String venue_limit;
     int difficulty;
-    Map<String, List<int[]>> panelists;
+    List<String> panelists = new ArrayList<String>();
     String category;
 
-    public Panel(String name, Map<String, List<int[]>> panelists, int final_hour){
+    public Panel(String name, Map<String, List<int[]>> people, String category, int final_hour){
         this.name = name;
-        this.panelists = panelists;
+        this.category = category;
+        for (String panelist : people.keySet()){
+            if (panelist.contains("n_")){
+                panelist.replace("n_","");
+                this.noob = true;
+            }
+            panelists.add(panelist);
+        }
+
+
         List<int[]> range = new ArrayList<int[]>();
         range.add(new int[]{0, final_hour});
-        for (List<int[]> value : panelists.values()){
+        for (List<int[]> value : people.values()){
             for (int[] time : value){
                 int size = range.size();
                 for (int i = 0; i < size; i++){
