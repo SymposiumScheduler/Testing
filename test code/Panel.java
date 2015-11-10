@@ -5,22 +5,20 @@ import java.util.Map;
 
 public class Panel implements Comparable<Panel>{
     String name;
-    List<int[]> times;
-    boolean locked = false;
-    boolean noob = false;
-    int minimum_size = 0;
-    String venue_limit;
-    int difficulty;
+    boolean Lock = false;
+    List<int[]> availability;
     List<String> panelists = new ArrayList<String>();
-    String category;
+    List<String> constraints = new ArrayList<String>(); //make this a list of constraint objects
+    VenueTime assignedVenueTime;
+    int difficulty;
 
     public Panel(String name, Map<String, List<int[]>> people, String category, int final_hour){
         this.name = name;
-        this.category = category;
+        //this.category = category;
         for (String panelist : people.keySet()){
             if (panelist.contains("n_")){
                 panelist.replace("n_","");
-                this.noob = true;
+                //this.noob = true;
             }
             panelists.add(panelist);
         }
@@ -48,7 +46,7 @@ public class Panel implements Comparable<Panel>{
                 }
             }
         }
-        times = range;
+        this.availability = range;
     }
 
     public void setDifficulty(int difficulty) {
@@ -56,21 +54,17 @@ public class Panel implements Comparable<Panel>{
         //concurrency - ( (end - start) + (end - start) ....)
     }
 
-    public void setSize(int minimum_size){
-        this.minimum_size = minimum_size;
+    public int getDifficulty(){
+        return 0;
     }
 
-    public void setVenue(String venue){
-        this.venue_limit = venue;
+    public void setDifficulty(){}
+
+    public VenueTime getVenueTIme(){
+        return new VenueTime(new int[]{0,0}, new Venue());
     }
 
-    public void setCategory(String category){
-        this.category = category;
-    }
-
-    public void setlock() {
-        this.locked = true;
-    }
+    public void setVenueTime(){}
 
     @Override
     public int compareTo(Panel that) {
