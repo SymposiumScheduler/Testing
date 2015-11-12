@@ -1,11 +1,11 @@
 public class VenueTime{
     int start;
     int end;
-    int[] time;
+    TimeRange time;
     Venue venue;
     Panel panel;
 
-    public VenueTime(int[] time, Venue venue){
+    public VenueTime(Venue venue, TimeRange time){
         this.time = time;
         this.venue = venue;
     }

@@ -8,17 +8,18 @@ public class Panel implements Comparable<Panel>{
     boolean Lock = false;
     List<int[]> availability;
     List<String> panelists = new ArrayList<String>();
-    List<String> constraints = new ArrayList<String>(); //make this a list of constraint objects
+    List<Constraint> constraints = new ArrayList<Constraint>();
     VenueTime assignedVenueTime;
     int difficulty;
+    String[] category;
 
-    public Panel(String name, Map<String, List<int[]>> people, String category, int final_hour){
+    public Panel(String name, Map<String, List<int[]>> people, String[] category, int final_hour, List<Constraint> constraints){
         this.name = name;
-        //this.category = category;
+        this.category = category;
+        this.constraints = constraints;
         for (String panelist : people.keySet()){
             if (panelist.contains("n_")){
                 panelist.replace("n_","");
-                //this.noob = true;
             }
             panelists.add(panelist);
         }
@@ -60,11 +61,11 @@ public class Panel implements Comparable<Panel>{
 
     public void setDifficulty(){}
 
-    public VenueTime getVenueTIme(){
-        return new VenueTime(new int[]{0,0}, new Venue());
+    public VenueTime getVenueTime(){
+        return assignedVenueTime;
     }
 
-    public void setVenueTime(){}
+    public void setVenueTime(VenueTime venueTime){}
 
     @Override
     public int compareTo(Panel that) {

@@ -38,12 +38,12 @@ public class Parser {
             int[] range;
             Map<String, Integer> days = new HashMap<String, Integer>();
             days.put("Monday", 0);
-            days.put("Tuesday", 2400);
-            days.put("Wednesday", 4800);
-            days.put("Thursday", 7200);
-            days.put("Friday", 9600);
-            days.put("Saturday", 12000);
-            days.put("Sunday", 14400);
+            days.put("Tuesday", 1440);
+            days.put("Wednesday", 2880);
+            days.put("Thursday", 4320);
+            days.put("Friday", 5760);
+            days.put("Saturday", 7200);
+            days.put("Sunday", 8640);
             String bucket;
             for (Object o : json_venue_times) {
                 JSONObject item = (JSONObject) o;
@@ -126,9 +126,9 @@ public class Parser {
         String[] splice = bucket.split(", ");
         String day = splice[0];
         String[] hours = splice[1].split("-");
-        int hour1 = Integer.parseInt(hours[0].replace(":", ""));
-        int hour2 = Integer.parseInt(hours[1].replace(":", ""));
-        return new int[]{days.get(day) + hour1, days.get(day) + hour2};
+        int minutes1 = Integer.parseInt(hours[0].replace(":", ""))*60;
+        int minutes2 = Integer.parseInt(hours[1].replace(":", ""))*60;
+        return new int[]{days.get(day) + minutes1, days.get(day) + minutes2};
     }
 
     //output function

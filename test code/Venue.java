@@ -1,22 +1,28 @@
+import java.util.List;
+
 public class Venue {
     String name;
     int size;
-    VenueTime[] assignedTimes;
-    VenueTime[] freeTImes;
+    List<VenueTime> assignedTimes;
+    List<VenueTime> freeTimes;
 
-    public Venue(){}
-
-    public VenueTime[] getAssignedTImes(){
-        return new VenueTime[]{};
+    public Venue(TimeRange[] range){
+        for (TimeRange times : range){
+            freeTimes.add(new VenueTime(this, times));
+        }
     }
 
-    public VenueTime[] getFreeTImes(){
-        return new VenueTime[]{};
+    public List<VenueTime> getAssignedTimes(){
+        return assignedTimes;
     }
 
-    public void assignVenueTIme(VenueTime venueTime){}
+    public List<VenueTime> getFreeTimes(){
+        return freeTimes;
+    }
 
-    public void freeVenueTIme(VenueTime venueTime){}
+    public void assignVenueTime(VenueTime venueTime){}
+
+    public void freeVenueTime(VenueTime venueTime){}
 
 
 }
