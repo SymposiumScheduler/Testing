@@ -1,53 +1,43 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Panel implements Comparable<Panel>{
     String name;
     boolean Lock = false;
-    List<int[]> availability;
+    Range availability;
     List<String> panelists = new ArrayList<String>();
-    List<Constraint> constraints = new ArrayList<Constraint>();
+    List<String> constraints = new ArrayList<String>();
     VenueTime assignedVenueTime;
     int difficulty;
-    String[] category;
+    String category;
 
-    public Panel(String name, Map<String, List<int[]>> people, String[] category, int final_hour, List<Constraint> constraints){
+    public Panel(String name, Map<String, TimeRangeSeries> panelists, String category, List<String> constraints){
         this.name = name;
         this.category = category;
         this.constraints = constraints;
-        for (String panelist : people.keySet()){
+
+        int new_count = 0;
+        List<TimeRangeSeries> times = new ArrayList<TimeRangeSeries>(){};
+        for (String panelist : panelists.keySet()){
             if (panelist.contains("n_")){
                 panelist.replace("n_","");
+                new_count += 1;
             }
-            panelists.add(panelist);
+            this.panelists.add(panelist);
+            times.add(panelists.get(panelist));
+        }
+        if (new_count >= 2){
+            constraints.add("new");
         }
 
-
-        List<int[]> range = new ArrayList<int[]>();
-        range.add(new int[]{0, final_hour});
-        for (List<int[]> value : people.values()){
-            for (int[] time : value){
-                int size = range.size();
-                for (int i = 0; i < size; i++){
-                    int[] slot = range.get(i);
-                    int start = time[0];
-                    int end = time[1];
-                    int slot_start = slot[0];
-                    int slot_end = slot[1];
-                    if (start > slot_start && start < slot_end){
-                        range.get(i)[0] = start;
-                    }
-                    if (end > slot_start && end < slot_end){
-                        range.get(i)[1] = end;
-                        range.add(i, new int[]{end, slot_end});
-                        size+=1;
-                    }
-                }
-            }
+        int size = times.size();
+        Range start = times.get(0);
+        for (int i = 0; i > size; i++){
+            start = start.intersect(times.get(i+1));
         }
-        this.availability = range;
+        this.availability = start;
+
+        //TODO set lock based on ...?
+
     }
 
     public void setDifficulty(int difficulty) {
@@ -56,16 +46,20 @@ public class Panel implements Comparable<Panel>{
     }
 
     public int getDifficulty(){
-        return 0;
+        return difficulty;
     }
 
-    public void setDifficulty(){}
+    public void setDifficulty(){
+        //TODO
+    }
 
     public VenueTime getVenueTime(){
         return assignedVenueTime;
     }
 
-    public void setVenueTime(VenueTime venueTime){}
+    public void setVenueTime(VenueTime venueTime){
+        this.assignedVenueTime = venueTime;
+    }
 
     @Override
     public int compareTo(Panel that) {

@@ -9,110 +9,115 @@ import java.util.*;
 public class Parser {
     public static void main(String[] args) {
         List<Panel> panels = new ArrayList<Panel>();
-        List<VenueTime> schedule = new ArrayList<VenueTime>();
+        List<Venue> venues = new ArrayList<Venue>();
         JSONParser parser = new JSONParser();
         try {
-            //Object obj = parser.parse(new FileReader("C:/Users/jrener/Dropbox/Senior Projects/sample code/src/data.txt"));
-            Object obj = parser.parse(new FileReader("C:/Users/Joey/Dropbox/Senior Projects/sample code/src/data.txt"));
-            //make sure you change the path
+            Object obj = parser.parse(new FileReader("data.txt"));
             JSONObject jsonObject = (JSONObject) obj;
             JSONArray json_venues = (JSONArray) jsonObject.get("Venues");
             JSONArray json_venue_times = (JSONArray) jsonObject.get("Venue-Times");
             JSONArray json_panelists = (JSONArray) jsonObject.get("Panelists");
             JSONArray json_panels = (JSONArray) jsonObject.get("Panels");
 
-            //Parse venues and determine their size
-            System.out.println("Getting venue sizes...");
-            int size;
-            String name;
+
+            //System.out.println("Getting venue sizes...");
             Map<String, Integer> sizes = new HashMap<String, Integer>();
             for (Object o : json_venues) {
                 JSONObject item = (JSONObject) o;
-                name = (String) item.get("name");
-                size = (int)(long) item.get("size");
-                sizes.put(name, size);
+                String venue_name = (String) item.get("name");
+                int venue_size = (int)(long) item.get("size");
+                sizes.put(venue_name, venue_size);
             }
 
-            //Parse venue_times and create objects using their names, size, and times
-            System.out.println("Setting up Venues...");
-            int[] range;
-            Map<String, Integer> days = new HashMap<String, Integer>();
-            days.put("Monday", 0);
-            days.put("Tuesday", 1440);
-            days.put("Wednesday", 2880);
-            days.put("Thursday", 4320);
-            days.put("Friday", 5760);
-            days.put("Saturday", 7200);
-            days.put("Sunday", 8640);
-            String bucket;
+
+            //System.out.println("Setting up Venues...");
+            Map<String, List<TimeRange>> ranges = new HashMap<String, List<TimeRange>>();
             for (Object o : json_venue_times) {
                 JSONObject item = (JSONObject) o;
-                name = (String) item.get("name");
-                bucket = (String) item.get("time");
-                range = convertTime(bucket, days);
-                size = sizes.get(name);
-                schedule.add(new VenueTime(name, range, size));
+                String venue_name = (String) item.get("name");
+                String venue_time = (String) item.get("time");
+                /*
+                String[] time_components = venue_time.split(", ");
+                String date = time_components[0];
+                String day = time_components[1];
+                String[] hours = time_components[2].split("-");
+                int abs_start = 0;
+                int abs_end = 0;
+                */
+                TimeRange timeRange = new TimeRange(venue_time); //timeRange of current slot
+                List<TimeRange> timeRanges; //list of all timeRanges for this venue
+                if (ranges.containsKey(venue_name)) {
+                    timeRanges = ranges.get(venue_name);
+                } else {
+                    timeRanges = new ArrayList<TimeRange>();
+                }
+                timeRanges.add(timeRange);
+                ranges.put(venue_name, timeRanges);
+            }
+            for (String key : ranges.keySet()){
+                int venue_size = sizes.get(key);
+                List<TimeRange> timeRanges = ranges.get(key);
+                venues.add(new Venue(key, venue_size, timeRanges));
             }
 
-            //Parse panelists and extract useful information that'll be used during panel creation
-            System.out.println("Setting up panelists...");
-            Boolean noob;
-            int end_time;
-            int final_hour = 0;
-            Map<String, List<int[]>> panelists = new HashMap<String, List<int[]>>();
+
+            //System.out.println("Setting up panelists...");
+            Map<String, List<TimeRange>> panelists = new HashMap<String, List<TimeRange>>();
             for (Object o : json_panelists) {
                 JSONObject item = (JSONObject) o;
-                name = (String) item.get("name");
-                noob = (item.get("new") == "yes");
+                String panelist_name = (String) item.get("name");
+                Boolean noob = (item.get("new") == "yes");
                 JSONArray json_times = (JSONArray) item.get("times");
-                List<int[]> times = new ArrayList<int[]>();
+                List<TimeRange> panelist_times = new ArrayList<TimeRange>();
                 for (Object time_slot : json_times) {
-                    bucket = (String) time_slot;
-                    range = convertTime(bucket, days);
-                    times.add(range);
-                    end_time = range[1];
-                    //System.out.println(range[0] + ", " + range[1]);
-                    if (end_time > final_hour){
-                        final_hour = end_time;
-                    }
+                    String panelist_time = (String) time_slot;
+                    /*
+                    String[] time_components = panelist_time.split(", ");
+                    String date = time_components[0];
+                    String day = time_components[1];
+                    String[] hours = time_components[2].split("-");
+                    int abs_start = 0;
+                    int abs_end = 0;
+                    */
+                    panelist_times.add(new TimeRange(panelist_time));
                 }
                 if (noob){
-                    panelists.put("n_" + name, times);
+                    panelists.put("n_" + panelist_name, panelist_times);
                 }
                 else {
-                    panelists.put(name, times);
+                    panelists.put(panelist_name, panelist_times);
                 }
             }
-            //System.out.println(final_hour);
 
 
-            //Parse panels and create their objects
-            System.out.println("Creating Panels...");
-            Map<String, Integer> category_count;
+            //System.out.println("Creating Panels...");
             for (Object o : json_panels) {
                 JSONObject item = (JSONObject) o;
-                name = (String) item.get("name");
+                String panel_name = (String) item.get("name");
                 JSONArray panel_panelists = (JSONArray) item.get("panelists");
                 JSONArray json_constraints = (JSONArray) item.get("constraints");
                 String category = (String) item.get("category");
+
+                Map<String, TimeRangeSeries> people_involved = new HashMap<String, TimeRangeSeries>();
+                for (Object panelist : panel_panelists) {
+                    String name = (String) panelist;
+                    Collection<TimeRange> times = panelists.get(name);
+                    people_involved.put(name, new TimeRangeSeries(times));
+                }
+
                 List<String> constraints = new ArrayList<String>();
                 for (Object k : json_constraints) {
                     String constraint = (String) k;
                     constraints.add(constraint);
                 }
-                Map<String, List<int[]>> people_involved = new HashMap<String, List<int[]>>();
-                String person;
-                List<int[]> times;
-                for (Object l : panel_panelists) {
-                    person = (String) l;
-                    times = panelists.get(person);
-                    people_involved.put(person, times);
-                }
-                panels.add(new Panel(name, people_involved, category, final_hour)); //note that panel creation does the necessary math to determine available times
+
+                panels.add(new Panel(panel_name, people_involved, category, constraints));
                 //TODO set panel constraints
                 //TODO if a panel has a certain minimum size or any venue limits, set its locked value to true
             }
-            output(schedule, panels);
+
+
+            output(venues, panels);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -122,27 +127,26 @@ public class Parser {
         }
     }
 
-    static int[] convertTime(String bucket, Map<String, Integer> days) {
-        String[] splice = bucket.split(", ");
-        String day = splice[0];
-        String[] hours = splice[1].split("-");
-        int minutes1 = Integer.parseInt(hours[0].replace(":", ""))*60;
-        int minutes2 = Integer.parseInt(hours[1].replace(":", ""))*60;
-        return new int[]{days.get(day) + minutes1, days.get(day) + minutes2};
-    }
 
     //output function
-    static void output(List<VenueTime> schedule, List<Panel> panels){
-        for (VenueTime venue : schedule){
-            System.out.println(venue.name + " " + venue.start);
-        }
-        for (Panel panel : panels){
-            System.out.println(panel.name);
-            for (int[] range : panel.times){
-                System.out.println("\t" + Integer.toString(range[0]) + " " + Integer.toString(range[1]));
+    static void output(List<Venue> venues, List<Panel> panels){
+        System.out.println("Venue Availability:");
+        for (Venue venue : venues){
+            System.out.println("\t" + venue.name + ": ");
+            List<VenueTime> freeTimes = venue.freeTimes;
+            for (VenueTime times : freeTimes){
+                System.out.println("\t\t" + times.start + " - " + times.end);
             }
         }
-        System.out.print("Done");
+        System.out.println("");
+        System.out.println("Panel Availability:");
+        for (Panel panel : panels){
+            System.out.println("\t" + panel.name + ": ");
+            for (TimeRange range : panel.availability){
+                System.out.println("\t\t" + range.START + " - " + range.END);
+            }
+        }
+        System.out.println("Done");
     }
 }
 

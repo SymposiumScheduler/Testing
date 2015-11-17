@@ -6,7 +6,9 @@ public class Venue {
     List<VenueTime> assignedTimes;
     List<VenueTime> freeTimes;
 
-    public Venue(TimeRange[] range){
+    public Venue(String name, int size, List<TimeRange> range){
+        this.name = name;
+        this.size = size;
         for (TimeRange times : range){
             freeTimes.add(new VenueTime(this, times));
         }
