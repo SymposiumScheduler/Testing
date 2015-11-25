@@ -12,7 +12,7 @@ public class Parser {
         List<Venue> venues = new ArrayList<Venue>();
         JSONParser parser = new JSONParser();
         try {
-            Object obj = parser.parse(new FileReader("data.txt"));
+            Object obj = parser.parse(new FileReader("C:/Users/Joey/Dropbox/data.txt"));
             JSONObject jsonObject = (JSONObject) obj;
             JSONArray json_venues = (JSONArray) jsonObject.get("Venues");
             JSONArray json_venue_times = (JSONArray) jsonObject.get("Venue-Times");
@@ -36,15 +36,15 @@ public class Parser {
                 JSONObject item = (JSONObject) o;
                 String venue_name = (String) item.get("name");
                 String venue_time = (String) item.get("time");
-                /*
-                String[] time_components = venue_time.split(", ");
-                String date = time_components[0];
-                String day = time_components[1];
-                String[] hours = time_components[2].split("-");
+                ///////////////////////////////////////////
+                //String[] time_components = venue_time.split(", ");
+                //String date = time_components[0];
+                //String day = time_components[1];
+                //String[] hours = time_components[2].split("-");
                 int abs_start = 0;
                 int abs_end = 0;
-                */
-                TimeRange timeRange = new TimeRange(venue_time); //timeRange of current slot
+                ///////////////////////////////
+                TimeRange timeRange = new TimeRange(abs_start, abs_end); //timeRange of current slot, change to venue_time
                 List<TimeRange> timeRanges; //list of all timeRanges for this venue
                 if (ranges.containsKey(venue_name)) {
                     timeRanges = ranges.get(venue_name);
@@ -71,15 +71,15 @@ public class Parser {
                 List<TimeRange> panelist_times = new ArrayList<TimeRange>();
                 for (Object time_slot : json_times) {
                     String panelist_time = (String) time_slot;
-                    /*
-                    String[] time_components = panelist_time.split(", ");
-                    String date = time_components[0];
-                    String day = time_components[1];
-                    String[] hours = time_components[2].split("-");
+                    ///////////////
+                    //String[] time_components = panelist_time.split(", ");
+                    //String date = time_components[0];
+                    //String day = time_components[1];
+                    //String[] hours = time_components[2].split("-");
                     int abs_start = 0;
                     int abs_end = 0;
-                    */
-                    panelist_times.add(new TimeRange(panelist_time));
+                    ////////////////
+                    panelist_times.add(new TimeRange(abs_start, abs_end)); //panelist_time
                 }
                 if (noob){
                     panelists.put("n_" + panelist_name, panelist_times);
